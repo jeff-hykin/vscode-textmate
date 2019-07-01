@@ -1,0 +1,12 @@
+/coverage/
+/out/
+.DS_Store
+*.nosync*
+node_modules/
+__pycache__
+.DS_Store
+node_modules
+**/.vscode/ipch
+**/.vscode/settings.json
+**/.cache
+**/dist
