@@ -718,10 +718,12 @@ function _checkWhileConditions(grammar: Grammar, lineText: OnigString, isFirstLi
 			});
 		}
 	}
-
+	let overshoot = 0;
 	for (let whileRule = whileRules.pop(); whileRule; whileRule = whileRules.pop()) {
 		let ruleScanner = whileRule.rule.compileWhile(grammar, whileRule.stack.endRule, isFirstLine, anchorPosition === linePos);
 		let r = ruleScanner.scanner.findNextMatchSync(lineText, linePos);
+		overshoot = whileRule.rule.overshoot;
+
 		if (IN_DEBUG_MODE) {
 			console.log('  scanning for while rule');
 			console.log(debugCompiledRuleToString(ruleScanner));
@@ -750,7 +752,7 @@ function _checkWhileConditions(grammar: Grammar, lineText: OnigString, isFirstLi
 		}
 	}
 
-	return { stack: stack, linePos: linePos, anchorPosition: anchorPosition, isFirstLine: isFirstLine };
+	return { stack: stack, linePos: overshoot + linePos, anchorPosition: anchorPosition, isFirstLine: isFirstLine };
 }
 
 function _tokenizeString(grammar: Grammar, lineText: OnigString, isFirstLine: boolean, linePos: number, stack: StackElement, lineTokens: LineTokens): StackElement {
