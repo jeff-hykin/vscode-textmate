@@ -35,6 +35,7 @@ export interface IRawRule extends ILocatable {
     readonly beginCaptures?: IRawCaptures;
     readonly end?: string;
     readonly endCaptures?: IRawCaptures;
+    readonly overshoot?: number;
     readonly while?: string;
     readonly whileCaptures?: IRawCaptures;
     readonly patterns?: IRawRule[];

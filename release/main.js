@@ -2025,11 +2025,12 @@ var BeginEndRule = /** @class */ (function (_super) {
 exports.BeginEndRule = BeginEndRule;
 var BeginWhileRule = /** @class */ (function (_super) {
     __extends(BeginWhileRule, _super);
-    function BeginWhileRule($location, id, name, contentName, begin, beginCaptures, _while, whileCaptures, patterns) {
+    function BeginWhileRule($location, id, name, contentName, begin, beginCaptures, overshoot, _while, whileCaptures, patterns) {
         var _this = _super.call(this, $location, id, name, contentName) || this;
         _this._begin = new RegExpSource(begin, _this.id);
         _this.beginCaptures = beginCaptures;
         _this.whileCaptures = whileCaptures;
+        _this.overshoot = overshoot;
         _this._while = new RegExpSource(_while, -2);
         _this.whileHasBackReferences = _this._while.hasBackReferences;
         _this.patterns = patterns.patterns;
@@ -2101,7 +2102,7 @@ var RuleFactory = /** @class */ (function () {
                     return new IncludeOnlyRule(desc.$vscodeTextmateLocation, desc.id, desc.name, desc.contentName, RuleFactory._compilePatterns(desc.patterns, helper, repository));
                 }
                 if (desc.while) {
-                    return new BeginWhileRule(desc.$vscodeTextmateLocation, desc.id, desc.name, desc.contentName, desc.begin, RuleFactory._compileCaptures(desc.beginCaptures || desc.captures, helper, repository), desc.while, RuleFactory._compileCaptures(desc.whileCaptures || desc.captures, helper, repository), RuleFactory._compilePatterns(desc.patterns, helper, repository));
+                    return new BeginWhileRule(desc.$vscodeTextmateLocation, desc.id, desc.name, desc.contentName, desc.begin, RuleFactory._compileCaptures(desc.beginCaptures || desc.captures, helper, repository), desc.overshoot || 0, desc.while, RuleFactory._compileCaptures(desc.whileCaptures || desc.captures, helper, repository), RuleFactory._compilePatterns(desc.patterns, helper, repository));
                 }
                 return new BeginEndRule(desc.$vscodeTextmateLocation, desc.id, desc.name, desc.contentName, desc.begin, RuleFactory._compileCaptures(desc.beginCaptures || desc.captures, helper, repository), desc.end, RuleFactory._compileCaptures(desc.endCaptures || desc.captures, helper, repository), desc.applyEndPatternLast, RuleFactory._compilePatterns(desc.patterns, helper, repository));
             });
@@ -2782,9 +2783,11 @@ function _checkWhileConditions(grammar, lineText, isFirstLine, linePos, stack, l
             });
         }
     }
+    var overshoot = 0;
     for (var whileRule = whileRules.pop(); whileRule; whileRule = whileRules.pop()) {
         var ruleScanner = whileRule.rule.compileWhile(grammar, whileRule.stack.endRule, isFirstLine, anchorPosition === linePos);
         var r = ruleScanner.scanner.findNextMatchSync(lineText, linePos);
+        overshoot = whileRule.rule.overshoot;
         if (debug_1.IN_DEBUG_MODE) {
             console.log('  scanning for while rule');
             console.log(debugCompiledRuleToString(ruleScanner));
@@ -2812,7 +2815,7 @@ function _checkWhileConditions(grammar, lineText, isFirstLine, linePos, stack, l
             break;
         }
     }
-    return { stack: stack, linePos: linePos, anchorPosition: anchorPosition, isFirstLine: isFirstLine };
+    return { stack: stack, linePos: overshoot + linePos, anchorPosition: anchorPosition, isFirstLine: isFirstLine };
 }
 function _tokenizeString(grammar, lineText, isFirstLine, linePos, stack, lineTokens) {
     var lineLength = lineText.content.length;

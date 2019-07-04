@@ -1,9 +1,9 @@
 {
-  "name": "vscode-textmate",
+  "name": "vscode-textmate-experimental",
   "version": "4.1.1",
   "description": "VSCode TextMate grammar helpers",
   "author": {
-    "name": "Microsoft Corporation"
+    "name": "Jeff Hykin"
   },
   "main": "./release/main.js",
   "typings": "./release/main.d.ts",
